@@ -15,7 +15,7 @@ func TestAccExampleDataSource(t *testing.T) {
 			{
 				Config: testAccExampleDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.scaffolding_example.test", "id", "example-id"),
+					resource.TestCheckResourceAttr("data.k8s_pods.pos_test", "namespace", "test"),
 				),
 			},
 		},
@@ -23,7 +23,15 @@ func TestAccExampleDataSource(t *testing.T) {
 }
 
 const testAccExampleDataSourceConfig = `
-data "scaffolding_example" "test" {
-  configurable_attribute = "example"
+terraform {
+	required_providers {
+	  k8s = {
+		source = "registry.terraform.io/mohammadvatandoost/k8s"
+	  }
+	}
+  }
+
+data "k8s_pods" "pos_test" {
+	namespace = "test"
 }
 `

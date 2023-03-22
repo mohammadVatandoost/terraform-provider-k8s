@@ -35,8 +35,8 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		// TODO: Update this string with the published name of your provider.
-		Address: "registry.terraform.io/hashicorp/scaffolding",
+		// by using dev_overrides overrides the path for testing
+		Address: "registry.terraform.io/mohammadvatandoost/k8s",
 		Debug:   debug,
 	}
 

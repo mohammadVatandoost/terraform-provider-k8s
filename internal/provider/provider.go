@@ -2,13 +2,12 @@ package provider
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 // Ensure K8sProvider satisfies various provider interfaces.
@@ -16,20 +15,10 @@ var _ provider.Provider = &K8sProvider{}
 
 // K8sProvider defines the provider implementation.
 type K8sProvider struct {
-	// version is set to the provider version on release, "dev" when the
-	// provider is built and ran locally, and "test" when running acceptance
-	// testing.
-	version string
-}
-
-// K8sProviderModel describes the provider data model.
-type K8sProviderModel struct {
-	Endpoint types.String `tfsdk:"endpoint"`
 }
 
 func (p *K8sProvider) Metadata(ctx context.Context, req provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "scaffolding"
-	resp.Version = p.version
+	resp.TypeName = "k8s"
 }
 
 func (p *K8sProvider) Schema(ctx context.Context, req provider.SchemaRequest, resp *provider.SchemaResponse) {
@@ -37,10 +26,24 @@ func (p *K8sProvider) Schema(ctx context.Context, req provider.SchemaRequest, re
 }
 
 func (p *K8sProvider) Configure(ctx context.Context, req provider.ConfigureRequest, resp *provider.ConfigureResponse) {
+	client, err := CreateClusterClient(ctx)
+
+	if err != nil {
+		resp.Diagnostics.AddError(
+			err.Error(),
+			"couldn't initialize k8s client",
+		)
+
+		return
+	}
+
+	resp.DataSourceData = client
+	resp.ResourceData = client
+	tflog.Info(ctx, "Configured HashiCups client", map[string]any{"success": true})
 }
 
 func (p *K8sProvider) Resources(ctx context.Context) []func() resource.Resource {
-	return []func() resource.Resource{}
+	return nil
 }
 
 func (p *K8sProvider) DataSources(ctx context.Context) []func() datasource.DataSource {

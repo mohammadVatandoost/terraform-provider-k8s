@@ -1,18 +1,21 @@
 package provider
 
 import (
+	"context"
+	"fmt"
 	"os"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/mohammadVatandoost/terraform-provider-k8s/pkg/utils"
-	"github.com/sirupsen/logrus"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-
-func CreateClusterClient() (kubernetes.Interface, error) {
+func CreateClusterClient(ctx context.Context) (kubernetes.Interface, error) {
+	tflog.Info(ctx, "***** CreateClusterClient ******")
 	homeDie, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err
@@ -20,7 +23,7 @@ func CreateClusterClient() (kubernetes.Interface, error) {
 	kubeConfigPath := homeDie + "/.kube/config"
 	var config *rest.Config
 	if utils.FileExists(kubeConfigPath) {
-		logrus.Info("kube config file exist")
+		tflog.Info(ctx, fmt.Sprintf("kube config file exist in path: %v", kubeConfigPath))
 		config, err = clientcmd.BuildConfigFromFlags("", kubeConfigPath)
 		if err != nil {
 			return nil, err
@@ -38,6 +41,14 @@ func CreateClusterClient() (kubernetes.Interface, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
+	pods, err := clientset.CoreV1().Pods("test").List(ctx, v1.ListOptions{})
+	if err != nil {
+		tflog.Error(ctx, err.Error())
+		return nil, err
+	}
+
+	tflog.Info(ctx, fmt.Sprintf("** CreateClusterClient pods: %v", pods.Items))
+
 	return clientset, nil
 }
