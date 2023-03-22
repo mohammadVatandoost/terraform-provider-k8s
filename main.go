@@ -36,7 +36,7 @@ func main() {
 
 	opts := providerserver.ServeOpts{
 		// by using dev_overrides overrides the path for testing
-		Address: "registry.terraform.io/mohammadvatandoost/k8s",
+		Address: "mohammadvatandoost/k8s",
 		Debug:   debug,
 	}
 

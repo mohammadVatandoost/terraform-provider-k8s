@@ -26,7 +26,7 @@ const testAccExampleDataSourceConfig = `
 terraform {
 	required_providers {
 	  k8s = {
-		source = "registry.terraform.io/mohammadvatandoost/k8s"
+		source = "mohammadvatandoost/k8s"
 	  }
 	}
   }
